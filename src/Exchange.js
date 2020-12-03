@@ -9,7 +9,9 @@ class Exchange extends Component {
             input1: "",
             input2: "",
             from: "1",
-            to: "1"
+            to: "1",
+            changeDirection: false,
+            lastInput: ""
         }
     }
     componentDidMount() {
@@ -23,21 +25,27 @@ class Exchange extends Component {
                     });
                 })
     }
-    handleChange = (event) => {
-        this.setState({ [event.target.name]: event.target.value }, (event) => this.calc(event));
-    }
-    handleCalc = (event) => {
-        let input = event.target.name;
-        this.setState({ [event.target.name]: event.target.value }, () => {
-            if (input === "input1") {
-                this.setState({ input2: ((1 / this.state.from) * this.state.to) * this.state.input1 });
-            } else if (input === "input2") {
 
+    handleChange = (event) => {
+        this.setState({ [event.target.name]: event.target.value }, () => {
+            this.handleCalc(this.state.lastInput)
+        });
+    }
+    handleInput = (event) => {
+        this.setState({ [event.target.name]: event.target.value, lastInput: event.target.name }, () => {
+            if (event.target.name === "input1") {
+                this.handleCalc('input1')
+            } else if (event.target.name === "input2") {
+                this.handleCalc('input2')
             }
         });
     }
-    calc = () => {
-        return (1 / this.state.input1) * this.state.input2
+    handleCalc = (para) => {
+        if (para === "input1") {
+            this.setState({ input2: ((1 / this.state.from) * this.state.to) * this.state.input1 });
+        } else if (para === "input2") {
+            this.setState({ input1: ((1 / this.state.to) * this.state.from) * this.state.input2 });
+        }
     }
     render() {
         return (
@@ -49,6 +57,7 @@ class Exchange extends Component {
                             <option value="1">EUR</option>
                             {Object.keys(this.state.data.rates).map((ele, key) => <option value={this.state.data.rates[ele]} key={key}>{ele}</option>)}
                         </select>
+
                         <select name="to" id="" onChange={this.handleChange}>
                             <option value="1">EUR</option>
                             {Object.keys(this.state.data.rates).map((ele, key) => <option value={this.state.data.rates[ele]} key={key}>{ele}</option>)}
@@ -59,8 +68,8 @@ class Exchange extends Component {
 
 
 
-                <input type="number" name="input1" value={this.state.input1} onChange={this.handleCalc} />
-                <input type="number" name="input2" value={this.state.input2} onChange={this.handleCalc} />
+                <input type="number" name="input1" value={this.state.input1} onChange={this.handleInput} />
+                <input type="number" name="input2" value={this.state.input2} onChange={this.handleInput} />
             </div>
         );
     }
